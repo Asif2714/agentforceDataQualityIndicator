@@ -1,0 +1,12 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    }
+  ],
+  "name": "AgentforceBives",
+  "namespace": "",
+  "sfdcLoginUrl": "https://immersivecloudsolutionsgro5-dev-ed.trailblaze.lightning.force.com/",
+  "sourceApiVersion": "65.0"
+}

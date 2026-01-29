@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>Zip bundle of dice icons for Agentforce Adventure Tools. Includes D4, D6, D8, D10, D12, and D20 assets in a light blue style that matches the app buttons. Used by the Quick Dice Roller LWC to render die badges.</description>
+</StaticResource>

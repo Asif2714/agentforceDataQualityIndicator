@@ -1,0 +1,164 @@
+<!-- Lightning Web Component for interactive dice rolling -->
+<template>
+  <lightning-card title="Quick Dice Roller">
+    <!-- Input section for roll configuration -->
+    <div
+      class="slds-p-around_medium slds-grid slds-wrap slds-grid_vertical-align-end"
+    >
+      <div
+        class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-right_small field-wrap"
+      >
+        <div class="modifier-group">
+          <lightning-input
+            class="modifier-input"
+            type="text"
+            name="modifier"
+            label="Modifier"
+            value={modifierText}
+            placeholder="0"
+            field-level-help="Bonus or penalty applied to the roll total. Accepts negative or positive integers."
+            onkeydown={onlyIntegerKeyDown}
+            oninput={handleModifierChange}
+            onchange={handleModifierChange}
+            onpaste={handleModifierPaste}
+            onblur={handleModifierBlur}
+          ></lightning-input>
+
+          <!-- Modifier adjustment buttons -->
+          <lightning-button
+            variant="neutral"
+            class="chip-theme chip-compact modifier-btn"
+            label="-"
+            title="Decrease modifier by 1"
+            onclick={decrementModifier}
+          ></lightning-button>
+
+          <lightning-button
+            variant="neutral"
+            class="chip-theme chip-compact modifier-btn"
+            label="+"
+            title="Increase modifier by 1"
+            onclick={incrementModifier}
+          ></lightning-button>
+        </div>
+      </div>
+
+      <div
+        class="slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-right_small field-wrap"
+      >
+        <lightning-combobox
+          name="roller"
+          label="Roller"
+          value={rollerId}
+          options={userOptions}
+          field-level-help="The adventurer behind the roll. Set a teammate, a bot, or keep it as the creator."
+          onchange={handleRoller}
+        ></lightning-combobox>
+      </div>
+    </div>
+
+    <!-- Error notification display -->
+    <template if:true={error}>
+      <div
+        class="slds-notify slds-notify_alert slds-theme_error slds-m-horizontal_medium slds-m-bottom_small error-banner"
+        role="alert"
+      >
+        <lightning-icon
+          icon-name="utility:error"
+          size="x-small"
+          class="slds-m-right_x-small"
+        ></lightning-icon>
+        <h2 class="slds-truncate" title={error}>{error}</h2>
+        <div class="slds-notify__close">
+          <button
+            class="slds-button slds-button_icon"
+            title="Dismiss"
+            onclick={clearError}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              size="x-small"
+            ></lightning-icon>
+            <span class="slds-assistive-text">Dismiss</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Loading overlay during dice roll -->
+    <template if:true={loading}>
+      <div class="overlay">
+        <lightning-spinner alternative-text="Rolling"></lightning-spinner>
+      </div>
+    </template>
+  </lightning-card>
+
+  <!-- Dice selection tiles with quick roll options -->
+  <lightning-card
+    title="Select how many dice you'd like to use"
+    class="slds-m-top_medium tiles-card"
+  >
+    <!-- Tile container with fade effect -->
+    <div class="tiles-stage card-fade-bottom">
+      <div class="tiles">
+        <!-- Individual dice type tiles -->
+        <template for:each={tiles} for:item="t">
+          <article key={t.sides} class="tile">
+            <header class="tile-head">
+              <div class="die-icon" aria-hidden="true">
+                <img
+                  class="die-img"
+                  src={t.iconSrc}
+                  data-fallback-src={t.iconFallback}
+                  alt={t.alt}
+                  onerror={handleIconError}
+                />
+              </div>
+              <div class="die-title">{t.label}</div>
+            </header>
+
+            <!-- Quick roll buttons for different dice counts -->
+            <div class="quick-buttons chip-theme">
+              <template for:each={t.quick} for:item="q">
+                <div key={q.label} class="chip-wrap">
+                  <lightning-button
+                    variant="neutral"
+                    class="chip"
+                    label={q.label}
+                    data-sides={t.sides}
+                    data-count={q.count}
+                    onclick={handleQuickRoll}
+                  ></lightning-button>
+                </div>
+              </template>
+            </div>
+
+            <!-- Last roll results display -->
+            <template if:true={t.last}>
+              <div class="tile-body">
+                <div class="tile-notation">{t.last.notation}</div>
+                <div class="tile-total">{t.last.total}</div>
+
+                <!-- Critical hit indicator -->
+                <template if:true={t.last.hadCritical}>
+                  <span
+                    class="crit-badge under"
+                    title="At least one die rolled max"
+                    >CRITICAL</span
+                  >
+                </template>
+
+                <div class="tile-dice">{t.last.diceValuesText}</div>
+              </div>
+            </template>
+          </article>
+        </template>
+      </div>
+    </div>
+  </lightning-card>
+
+  <!-- Decorative footer image -->
+  <div class="tiles-footer" aria-hidden="true">
+    <img class="tiles-footer-img" src={footerSrc} alt="" />
+  </div>
+</template>
