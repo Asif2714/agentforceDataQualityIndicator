@@ -1,0 +1,115 @@
+<template>
+    <section class="slds-card">
+        <div class="slds-card__header slds-grid slds-wrap slds-p-around_small">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name={statusIconName} size="small" class={statusIconClass} alternative-text="Data Quality"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title slds-truncate" title="Data Quality Indicator">
+                        Data Quality Indicator
+                    </h2>
+                </div>
+                <template if:true={hasTooltip}>
+                    <div class="slds-m-left_small">
+                        <lightning-helptext content={tooltipText}></lightning-helptext>
+                    </div>
+                </template>
+            </header>
+        </div>
+
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={isLoading}>
+                <div class="slds-p-vertical_medium slds-text-align_center">
+                    <lightning-spinner size="small" alternative-text="Loading"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:false={isLoading}>
+                <template if:true={hasRules}>
+                    <!-- Horizontal progress bar and status -->
+                    <div class="slds-var-m-bottom_medium">
+                        <div class="slds-grid slds-wrap slds-grid_vertical-align-center">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4">
+                                <div class="slds-text-title_caps slds-var-m-bottom_x-small">Data Quality</div>
+                                <div class="slds-assistive-text" id="dq-progress-label">Profile completeness</div>
+                                <div class={progressBarCombinedClass}
+                                     role="progressbar"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100"
+                                     aria-valuenow={percentage}
+                                     aria-labelledby="dq-progress-label">
+                                    <span class="slds-progress-bar__value" style={progressStyle}>
+                                        <span class="slds-assistive-text">{percentage}% Complete</span>
+                                    </span>
+                                </div>
+                                <div class="slds-text-color_weak slds-text-body_small slds-var-m-top_x-small">
+                                    Score reflects how many key {objectApiName} fields are filled.
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-text-align_right">
+                                <div class="slds-text-heading_large">{percentage}%</div>
+                                <div class="slds-text-title">{statusLabel}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="slds-m-vertical_medium" />
+
+                    <!-- Missing fields grouped -->
+                    <div class="slds-grid slds-wrap slds-var-m-top_small">
+                        <div class="slds-col slds-size_1-of-1">
+                            <div class="slds-text-title_caps slds-var-m-bottom_x-small">
+                                Missing Fields
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-var-p-right_small">
+                            <div class="slds-text-title_bold slds-var-m-bottom_x-small">
+                                <lightning-icon icon-name="utility:error" size="x-small" class="slds-icon-text-error slds-var-m-right_x-small"></lightning-icon>
+                                Required ({missingRequiredCount})
+                            </div>
+                            <template if:true={missingRequiredCount}>
+                                <ul class="slds-list_dotted slds-m-left_large">
+                                    <template for:each={missingRequired} for:item="field">
+                                        <li key={field.apiName} class="slds-var-m-bottom_xx-small">
+                                            <span class="slds-truncate" title={field.label}>{field.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={missingRequiredCount}>
+                                <div class="slds-text-color_success slds-text-body_small">No required fields missing.</div>
+                            </template>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-var-p-left_small">
+                            <div class="slds-text-title_bold slds-var-m-bottom_x-small">
+                                <lightning-icon icon-name="utility:warning" size="x-small" class="slds-icon-text-warning slds-var-m-right_x-small"></lightning-icon>
+                                Recommended ({missingRecommendedCount})
+                            </div>
+                            <template if:true={missingRecommendedCount}>
+                                <ul class="slds-list_dotted slds-m-left_large">
+                                    <template for:each={missingRecommended} for:item="field">
+                                        <li key={field.apiName} class="slds-var-m-bottom_xx-small">
+                                            <span class="slds-truncate" title={field.label}>{field.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={missingRecommendedCount}>
+                                <div class="slds-text-color_success slds-text-body_small">No recommended fields missing.</div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:false={hasRules}>
+                    <div class="slds-text-color_error slds-p-vertical_small">
+                        No active data quality rules found for {objectApiName}. Ask an admin to add Data_Quality_Rule__c records.
+                    </div>
+                </template>
+            </template>
+        </div>
+    </section>
+</template>

@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+/* Progress bar styling and color states */
+.slds-progress-bar {
+    height: 8px;
+}
+.slds-progress-bar .slds-progress-bar__value {
+    transition: width 0.3s ease;
+}
+.slds-progress-bar.dq-progress_red .slds-progress-bar__value {
+    background-color: #e1636e; /* error tone */
+}
+.slds-progress-bar.dq-progress_yellow .slds-progress-bar__value {
+    background-color: #ffb75d; /* warning tone */
+}
+.slds-progress-bar.dq-progress_green .slds-progress-bar__value {
+    background-color: #45c65a; /* success tone */
+}
+.dq-progress {
+    border-radius: 4px;
+}

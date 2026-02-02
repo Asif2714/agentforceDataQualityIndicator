@@ -1,0 +1,64 @@
+/* Host display */
+:host {
+    display: block;
+}
+
+/* Horizontal progress bar color states */
+.slds-progress-bar {
+    height: 8px;
+}
+.slds-progress-bar .slds-progress-bar__value {
+    transition: width 0.3s ease;
+}
+.slds-progress-bar.dq-progress_red .slds-progress-bar__value {
+    background-color: #e1636e; /* SLDS error-ish tone */
+}
+.slds-progress-bar.dq-progress_yellow .slds-progress-bar__value {
+    background-color: #ffb75d; /* SLDS warning-ish tone */
+}
+.slds-progress-bar.dq-progress_green .slds-progress-bar__value {
+    background-color: #45c65a; /* SLDS success-ish tone */
+}
+/* Ensure progress bar maintains consistent styling */
+.dq-progress {
+    border-radius: 4px;
+}
+
+/* Circular progress indicator */
+.dq-circle {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.dq-circular {
+    width: 120px;
+    height: 120px;
+}
+.dq-bg {
+    fill: none;
+    stroke: #e5e5e5;
+    stroke-width: 3;
+}
+.dq-percent {
+    font-size: 0.9rem;
+    fill: var(--lwc-colorTextDefault, #080707);
+}
+
+/* Animate and color stroke for circular progress using dash array/offset
+   Note: We cannot compute stroke-dashoffset in HTML attribute bindings easily;
+   Instead, use a CSS custom property that JS can set inline if needed.
+*/
+.dq-circular path.dq-progress_red,
+.dq-circular path.dq-progress_yellow,
+.dq-circular path.dq-progress_green {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    /* Circle circumference for r ~16 is approx 100.53; use 100 for simplicity */
+    stroke-dasharray: 100;
+    /* Expect an inline style like: style="--pct: 72" to compute the offset */
+    stroke-dashoffset: calc(100 - var(--pct, 0));
+}
+.dq-circular path.dq-progress_red { stroke: #e1636e; }
+.dq-circular path.dq-progress_yellow { stroke: #ffb75d; }
+.dq-circular path.dq-progress_green { stroke: #45c65a; }
