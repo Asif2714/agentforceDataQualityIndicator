@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Low_Data_Quality_Opportunities</fullName>
+    <columns>OPPORTUNITY.NAME</columns>
+    <columns>OPPORTUNITY.STAGE_NAME</columns>
+    <columns>OPPORTUNITY.CLOSE_DATE</columns>
+    <columns>CORE.USERS.ALIAS</columns>
+    <columns>Data_Quality_Score__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Data_Quality_Score__c</field>
+        <operation>lessThan</operation>
+        <value>80</value>
+    </filters>
+    <label>Low Data Quality Opportunities</label>
+</ListView>
