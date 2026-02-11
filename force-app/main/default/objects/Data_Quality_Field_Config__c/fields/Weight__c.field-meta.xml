@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Weight__c</fullName>
-    <description>Importance scale used for scoring (1–5). 1=Low, 5=Critical.</description>
+    <description>Importance weight of the field (1-5).</description>
     <label>Weight</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
-            <sorted>true</sorted>
+            <sorted>false</sorted>
             <value>
-                <fullName>1 – Low</fullName>
+                <fullName>1</fullName>
                 <default>true</default>
-                <label>1 – Low</label>
+                <label>1 - Low</label>
             </value>
             <value>
-                <fullName>2 – Medium-Low</fullName>
+                <fullName>2</fullName>
                 <default>false</default>
-                <label>2 – Medium-Low</label>
+                <label>2 - Minor</label>
             </value>
             <value>
-                <fullName>3 – Medium</fullName>
+                <fullName>3</fullName>
                 <default>false</default>
-                <label>3 – Medium</label>
+                <label>3 - Medium</label>
             </value>
             <value>
-                <fullName>4 – High</fullName>
+                <fullName>4</fullName>
                 <default>false</default>
-                <label>4 – High</label>
+                <label>4 - High</label>
             </value>
             <value>
-                <fullName>5 – Critical</fullName>
+                <fullName>5</fullName>
                 <default>false</default>
-                <label>5 – Critical</label>
+                <label>5 - Critical</label>
             </value>
         </valueSetDefinition>
     </valueSet>

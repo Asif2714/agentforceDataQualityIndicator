@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Data_Quality_Score__c</fullName>
+    <fullName>Max_Fields__c</fullName>
+    <defaultValue>10</defaultValue>
+    <description>Maximum number of fields allowed in this configuration.</description>
     <externalId>false</externalId>
-    <label>Data Quality Score</label>
+    <label>Max Fields</label>
     <precision>18</precision>
     <required>false</required>
-    <scale>2</scale>
-    <trackFeedHistory>false</trackFeedHistory>
+    <scale>0</scale>
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>

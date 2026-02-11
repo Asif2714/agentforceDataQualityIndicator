@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>Account</baseObject>
+    <category>accounts</category>
+    <description>Account reports with Data Quality Score fields.</description>
+    <label>Accounts with Data Quality</label>
+    <sections>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Data_Quality_Score__c</field>
+            <table>Account</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Data_Quality_Score_Timestamp__c</field>
+            <table>Account</table>
+        </columns>
+        <masterLabel>Data Quality</masterLabel>
+    </sections>
+</ReportType>

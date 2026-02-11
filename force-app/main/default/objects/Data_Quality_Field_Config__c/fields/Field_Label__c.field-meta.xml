@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Data_Quality_Score__c</fullName>
+    <fullName>Field_Label__c</fullName>
+    <description>Label of the Field.</description>
     <externalId>false</externalId>
-    <label>Data Quality Score</label>
-    <precision>18</precision>
+    <label>Field Label</label>
+    <length>100</length>
     <required>false</required>
-    <scale>2</scale>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackTrending>false</trackTrending>
-    <type>Number</type>
+    <type>Text</type>
     <unique>false</unique>
 </CustomField>

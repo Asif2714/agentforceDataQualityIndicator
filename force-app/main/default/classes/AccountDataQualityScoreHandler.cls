@@ -1,37 +1,34 @@
 /**
- * @description Calculates and stores Opportunity data quality scores on save.
- * @notes
- * - Uses Data_Quality_Rule__c configuration for Opportunity
- * - Keeps scoring logic aligned with the LWC (weighted completeness)
+ * @description Calculates and stores Account data quality scores on save.
  */
-public without sharing class OpportunityDataQualityScoreHandler {
+public without sharing class AccountDataQualityScoreHandler {
     private class RuleModel {
         public String fieldApiName;
         public Boolean isRequired;
         public Decimal weight;
     }
 
-    public static void applyScores(List<Opportunity> records) {
+    public static void applyScores(List<Account> records) {
         if (records == null || records.isEmpty()) {
             return;
         }
 
         List<RuleModel> rules = loadRules();
-        for (Opportunity opp : records) {
-            Decimal pct = computeScore(opp, rules);
-            opp.Data_Quality_Score__c = pct;
-            opp.Data_Quality_Score_Timestamp__c = System.now();
+        for (Account acc : records) {
+            Decimal pct = computeScore(acc, rules);
+            acc.Data_Quality_Score__c = pct;
+            acc.Data_Quality_Score_Timestamp__c = System.now();
         }
     }
 
     private static List<RuleModel> loadRules() {
         List<RuleModel> models = new List<RuleModel>();
-        Map<String, Schema.SObjectField> fieldMap = Opportunity.SObjectType.getDescribe().fields.getMap();
+        Map<String, Schema.SObjectField> fieldMap = Account.SObjectType.getDescribe().fields.getMap();
 
         List<Data_Quality_Field_Config__c> rules = [
             SELECT Field_API_Name__c, Is_Required__c, Weight__c
             FROM Data_Quality_Field_Config__c
-            WHERE Data_Quality_Config__r.Object_API_Name__c = 'Opportunity'
+            WHERE Data_Quality_Config__r.Object_API_Name__c = 'Account'
             WITH USER_MODE
             ORDER BY Sort_Order__c ASC NULLS LAST, CreatedDate ASC
         ];
@@ -54,7 +51,6 @@ public without sharing class OpportunityDataQualityScoreHandler {
 
     private static Decimal parseWeight(String weightStr) {
         if (String.isBlank(weightStr)) return 1;
-        // Picklist values are like "1", "2", or "5 - Critical"
         String firstChar = weightStr.substring(0, 1);
         if (firstChar.isNumeric()) {
             return Decimal.valueOf(firstChar);
