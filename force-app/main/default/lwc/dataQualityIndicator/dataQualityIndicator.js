@@ -5,7 +5,7 @@ import getRulesForObject from '@salesforce/apex/DataQualityService.getRulesForOb
 
 /**
  * Reusable, metadata-driven Data Quality Indicator.
- * - Admins configure Data_Quality_Rule__c records per object (no deployments).
+ * - Admins configure Data_Quality_Config__c records per object.
  * - LWC detects object, fetches rules via Apex (cacheable), builds LDS field list dynamically,
  *   fetches record values, computes a weighted completeness score, and renders SLDS UI.
  *
@@ -28,7 +28,8 @@ export default class DataQualityIndicator extends LightningElement {
     fieldLabels = new Map();
 
     // Dynamic list of fields for LDS getRecord: ["ObjectApi.Field__c", ...]
-    _recordFieldApiNames = [];
+    // IMPORTANT: Initialize as undefined, not [], so @wire waits until fields are ready
+    _recordFieldApiNames;
 
     // Computed results
     percentage = 0;
@@ -41,7 +42,7 @@ export default class DataQualityIndicator extends LightningElement {
         return true;
     }
     get tooltipText() {
-        return 'Score uses admin-configured Data Quality Rules. Required fields and custom weights increase impact.';
+        return 'Data quality is calculated using admin-defined importance levels on a 1–5 scale.';
     }
 
     // 1) Wire object info to get labels and security-aware field presence
@@ -62,7 +63,7 @@ export default class DataQualityIndicator extends LightningElement {
         this.tryBuildFieldList();
     }
 
-    // 2) Fetch active rules for the object
+    // 2) Fetch rules for the object (all rules considered active)
     @wire(getRulesForObject, { objectApiName: '$objectApiName' })
     wiredRules({ data, error }) {
         if (error) {
@@ -87,12 +88,23 @@ export default class DataQualityIndicator extends LightningElement {
         if (!this.rules || this.rules.length === 0 || this.fieldLabels.size === 0) {
             return;
         }
+
         const objectApi = this.objectApiName;
         const fields = [];
+
+        // Compound address fields cannot be fetched by getRecord - they must be skipped
+        const compoundFields = new Set([
+            'BillingAddress', 'ShippingAddress', 'MailingAddress', 'OtherAddress', 'PersonMailingAddress', 'PersonOtherAddress'
+        ]);
+
         for (const r of this.rules) {
-            // Only include fields that appear in object info (guards FLS/inaccessible too)
-            if (this.fieldLabels.has(r.fieldApiName)) {
-                fields.push(`${objectApi}.${r.fieldApiName}`);
+            const apiName = r.fieldApiName;
+            const hasLabel = this.fieldLabels.has(apiName);
+            const isCompound = compoundFields.has(apiName);
+
+            // Only include fields that appear in object info AND are not compound fields
+            if (hasLabel && !isCompound) {
+                fields.push(`${objectApi}.${apiName}`);
             }
         }
         this._recordFieldApiNames = fields;
@@ -125,8 +137,35 @@ export default class DataQualityIndicator extends LightningElement {
         for (const r of this.rules) {
             const api = r.fieldApiName;
             const isRequired = r.isRequired === true;
-            const label = this.fieldLabels.get(api) || this.toFriendlyLabel(api);
-            const weight = (r.weight != null ? Number(r.weight) : (isRequired ? 2 : 1));
+            // Prioritize label from Apex RuleDTO, fallback to ObjectInfo, then friendly API name
+            let label = r.label || this.fieldLabels.get(api) || this.toFriendlyLabel(api);
+
+            // Automatic fix-up for IDs: "Account ID" -> "Account Name"
+            if (label && label.toLowerCase().endsWith('id') && api.toLowerCase().endsWith('id')) {
+                label = label.substring(0, label.length - 2).trim() + ' Name';
+            }
+
+            // Normalize Weight to 1..5. The Apex defaults weight to 1 if null.
+            // Support picklist labels like "3 – Medium" by extracting the leading integer.
+            let w = r.weight;
+            if (typeof w === 'string') {
+                const m = w.match(/^\s*(\d+)/);
+                w = m ? Number(m[1]) : NaN;
+            } else if (typeof w === 'number') {
+                w = w;
+            } else {
+                w = NaN;
+            }
+            let weight = Number(w);
+            if (!Number.isFinite(weight)) {
+                weight = 1;
+            }
+            // Clamp to [1,5]
+            weight = Math.max(1, Math.min(5, weight));
+            // Ensure weight is a number for the computation
+            if (typeof weight !== 'number' || isNaN(weight)) {
+                weight = 1;
+            }
 
             totalWeight += weight;
 
@@ -204,9 +243,16 @@ export default class DataQualityIndicator extends LightningElement {
 
     // Fallback friendly label generator
     toFriendlyLabel(apiName) {
-        return String(apiName)
+        if (!apiName) return '';
+        let str = String(apiName);
+
+        // Handle lookup IDs: AccountId -> Account Name
+        if (str.endsWith('Id')) {
+            str = str.substring(0, str.length - 2) + ' Name';
+        }
+
+        return str
             .replace(/__c$/, '')
-            .replace(/Id$/, '')
             .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
             .trim();
     }

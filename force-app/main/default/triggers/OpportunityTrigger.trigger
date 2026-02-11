@@ -1,3 +1,7 @@
 trigger OpportunityTrigger on Opportunity (before insert, before update) {
-    OpportunityDataQualityScoreHandler.applyScores(Trigger.new);
+    if (Trigger.isBefore) {
+        if (Trigger.isInsert || Trigger.isUpdate) {
+            OpportunityDataQualityScoreHandler.applyScores(Trigger.new);
+        }
+    }
 }

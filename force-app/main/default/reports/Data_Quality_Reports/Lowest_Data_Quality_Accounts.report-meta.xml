@@ -1,46 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
     <columns>
-        <field>OPPORTUNITY_NAME</field>
-    </columns>
-    <columns>
-        <field>STAGE_NAME</field>
-    </columns>
-    <columns>
-        <field>CLOSE_DATE</field>
-    </columns>
-    <columns>
         <aggregateTypes>Average</aggregateTypes>
-        <field>Opportunity.Data_Quality_Score__c</field>
+        <field>Account.Data_Quality_Score__c</field>
     </columns>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
-        <field>FULL_NAME</field>
+        <field>ACCOUNT.NAME</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Data Quality Score by User</name>
-    <params>
-        <name>open</name>
-        <value>all</value>
-    </params>
-    <params>
-        <name>probability</name>
-        <value>&gt;0</value>
-    </params>
+    <name>Lowest Data Quality Accounts</name>
     <params>
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Opportunity</reportType>
+    <reportType>AccountList</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>true</showGrandTotal>
     <showSubTotals>true</showSubTotals>
-    <sortColumn>Opportunity.Data_Quality_Score__c</sortColumn>
+    <sortColumn>Account.Data_Quality_Score__c</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>
-        <dateColumn>CLOSE_DATE</dateColumn>
+        <dateColumn>CREATED_DATE</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>
     </timeFrameFilter>
 </Report>
