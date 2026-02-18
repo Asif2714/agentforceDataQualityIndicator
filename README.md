@@ -1,54 +1,47 @@
 # Dynamic Data Quality Indicator
 
-Simple Salesforce setup for scoring Account and Opportunity data quality.
+Metadata-driven scoring for any object. Admins define field rules; triggers stamp a weighted completeness score and timestamp on save.
 
-The solution lets admins define field-level data quality rules and then automatically stamps a score and timestamp when records are saved.
+## Deploy
+- Connect org:
+  ```bash
+  sf org login web --alias <org-alias> --instance-url <org-url> --set-default
+  ```
+- Deploy metadata:
+  ```bash
+  sf project deploy start --source-dir force-app --target-org <org-alias>
+  ```
 
-## What To Deploy (New Org)
+## Configure Scoring
+- Ensure each scored object has:
+  - `Data_Quality_Score__c` (Number(16,2))
+  - `Data_Quality_Score_Timestamp__c` (Date/Time)
+- Assign `Data_Quality_Admin` permission set.
+- Create one `Data_Quality_Config__c` per object.
+- Add child `Data_Quality_Field_Config__c` rows (field API, weight 1–5, required flag). One config per object.
 
-Deploy these folders:
+## Enable UI
+- Add `dataQualityIndicator` LWC to the object record page (Lightning App Builder).
+- (Optional) Show `Data_Quality_Score__c` and `Data_Quality_Score_Timestamp__c` on the layout.
 
-1. `force-app/main/default/objects`
-2. `force-app/main/default/classes`
-3. `force-app/main/default/triggers`
-4. `force-app/main/default/lwc`
-5. `force-app/main/default/flexipages`
-6. `force-app/main/default/layouts`
-7. `force-app/main/default/tabs`
-8. `force-app/main/default/permissionsets`
-9. `force-app/main/default/matchingRules`
-10. `force-app/main/default/duplicateRules`
+## Backfill Existing Records
+- Run via Execute Anonymous:
+  ```bash
+  sf apex run --file update_scores.apex --target-org <org-alias>
+  ```
 
-Optional (if you also want reporting/dashboard assets):
-
-1. `force-app/main/default/reports`
-2. `force-app/main/default/dashboards`
-3. `force-app/main/default/reportTypes`
-
-## Setup Steps In Salesforce
-
-1. Assign the `Data_Quality_Admin` permission set to admins.
-2. Create a `Data_Quality_Config__c` record for each object you want to score (for example, Account and Opportunity).
-3. Keep it to **one config record per object**.  
-   There is matching + duplicate logic to prevent duplicates.
-4. In each config record, use the Data Quality Config Editor to add field rules:
-   - choose the field
-   - set weight (importance)
-   - mark required/recommended
-5. Add the `dataQualityIndicator` LWC to the object record page in Lightning App Builder.
-6. (Optional but recommended) Add these fields to the page layout/page:
-   - `Data_Quality_Score__c`
-   - `Data_Quality_Score_Timestamp__c`
-
-At this point, new and updated records will be scored automatically.
-
-## Existing Records (Backfill Scores)
-
-If older records have no score/timestamp yet, run `update_scores.apex` in Execute Anonymous.
-
-That script updates Account and Opportunity records so triggers recalculate and stamp scores.
+## Optional Reporting Assets
+- If wanted, also deploy: `force-app/main/default/reports`, `force-app/main/default/dashboards`, `force-app/main/default/reportTypes`.
 
 ## Notes
+- Triggers call `DataQualityScoreService.evaluate`, which scores any object with the fields above.
+- Scoring uses `Data_Quality_Config__c` + `Data_Quality_Field_Config__c`; missing/blank configured fields lower the score; if no rules, score defaults to 100.
 
-- Account and Opportunity scoring fields are already included in this repo.
-- Scoring is metadata-driven through `Data_Quality_Config__c` and `Data_Quality_Field_Config__c`.
+## Key Project Files
+- Apex services: `force-app/main/default/classes/DataQualityScoreService.cls`
+- Triggers: `force-app/main/default/triggers/AccountTrigger.trigger`, `force-app/main/default/triggers/OpportunityTrigger.trigger` (pattern to copy for other objects)
+- LWCs: `force-app/main/default/lwc/dataQualityIndicator/*`, `force-app/main/default/lwc/dataQualityConfigEditor/*`
+- Custom objects/config: `force-app/main/default/objects/Data_Quality_Config__c/*`, `force-app/main/default/objects/Data_Quality_Field_Config__c/*`
+- Object fields: `force-app/main/default/objects/*/fields/Data_Quality_Score__c.field-meta.xml`, `Data_Quality_Score_Timestamp__c.field-meta.xml`
+- Backfill script: `update_scores.apex`
+- Optional analytics: `force-app/main/default/reports/*`, `force-app/main/default/dashboards/*`, `force-app/main/default/reportTypes/*`
